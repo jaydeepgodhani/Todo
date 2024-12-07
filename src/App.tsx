@@ -1,5 +1,9 @@
 import {useRef, useState} from 'react'
 import './App.css'
+import {Checkbox} from "@nextui-org/checkbox"
+import {Button, Input, Select, SelectItem} from "@nextui-org/react";
+import { ImCross } from "react-icons/im";
+
 
 enum Priority {
   default = "default",
@@ -13,6 +17,15 @@ interface TodoBox {
   name: string;
   priority: Priority;
 }
+
+const selectOptions = [
+  {key: "default", label: "Default"},
+  {key: "high", label: "High"},
+  {key: "medium", label: "Medium"},
+  {key: "low", label: "Low"},
+];
+
+const liStyle = 'py-2 flex w-full flex-row justify-between hover:bg-gray-100 hover:rounded-md';
 
 // Add reordering
 
@@ -63,37 +76,56 @@ function App() {
     }
   }
 
+  const inputClicked = () => {
+    if (selectedInput.current != null) {
+      selectedInput.current.value = "";
+    }
+  }
+
   return (
-      <>
-        <div>
-          <input type={"text"} ref={selectedInput}/>
-          <select name={"prioritySelect"} ref={selectedPriority} defaultValue={'default'}>
-            <option value={"default"}>Default</option>
-            <option value={"high"}>High</option>
-            <option value={"medium"}>Medium</option>
-            <option value={"low"}>Low</option>
-          </select>
-          <button onClick={addItem}>ADD</button>
+      <div className='w-full flex flex-col items-center justify-center'>
+        <div className='w-1/3 mt-8'>
+          <div className='flex'>
+            <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} onClick={inputClicked}/>
+            <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["default"]} aria-label={'select priority'}>
+              {selectOptions.map((animal) => (
+                  <SelectItem key={animal.key}>{animal.label}</SelectItem>
+              ))}
+            </Select>
+            <Button color="primary" onClick={addItem} className='px-4'>ADD</Button>
+          </div>
+
+          <div className='mt-8'>
+            {todoList && todoList.length > 0 &&
+                <div>
+                  <h1>{'ToDo'}</h1>
+                  <ul className='mt-4'>
+                    {todoList.map((item, index) => <li key={index} style={{listStyleType: "none"}} className={liStyle}>
+                      <Checkbox isSelected={item.done}
+                                onChange={() => checkItem(item)}>{item.name} / {item.priority} </Checkbox>
+                      <ImCross onClick={() => deleteItem("todo", item)} className='cursor-pointer m-1.5 mx-4'/>
+                    </li>)}
+                  </ul>
+                </div>
+            }
+          </div>
+
+          <div className='mt-8'>
+            {doneList && doneList.length > 0 &&
+                <div>
+                  <h1>{'Done'}</h1>
+                  <ul className='mt-4'>
+                    {doneList.map((item, index) => <li key={index} style={{listStyleType: "none"}} className={liStyle}>
+                      <Checkbox isSelected={item.done}
+                                onChange={() => uncheckItem(item)}>{item.name} / {item.priority} </Checkbox>
+                      <ImCross onClick={() => deleteItem("done", item)} className='cursor-pointer m-1.5'/>
+                    </li>)}
+                  </ul>
+                </div>
+            }
+          </div>
         </div>
-
-        {todoList && todoList.length > 0 &&
-            <ul>
-              {todoList.map((item, index) => <li key={index} style={{listStyleType: "none"}}>
-                <input type={"checkbox"} onChange={() => checkItem(item)}
-                       checked={item.done}/>{item.name} / {item.priority}
-                <input type={"checkbox"} onChange={() => deleteItem("todo", item)} checked={false}/></li>)}
-            </ul>
-        }
-
-        {doneList && doneList.length > 0 &&
-            <ul>
-              {doneList.map((item, index) => <li key={index} style={{listStyleType: "none"}}>
-                <input type={"checkbox"} checked={item.done}
-                       onChange={() => uncheckItem(item)}/>{item.name} / {item.priority}
-                <input type={"checkbox"} onChange={() => deleteItem("done", item)} checked={false}/></li>)}
-            </ul>
-        }
-      </>
+      </div>
   )
 }
 
