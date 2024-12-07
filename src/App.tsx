@@ -3,7 +3,7 @@ import './App.css'
 import {Checkbox} from "@nextui-org/checkbox"
 import {Button, Input, Select, SelectItem} from "@nextui-org/react";
 import { ImCross } from "react-icons/im";
-
+import {LettersPullUp} from "./LettersPullUp.tsx";
 
 enum Priority {
   default = "default",
@@ -19,13 +19,12 @@ interface TodoBox {
 }
 
 const selectOptions = [
-  {key: "default", label: "Default"},
   {key: "high", label: "High"},
   {key: "medium", label: "Medium"},
   {key: "low", label: "Low"},
 ];
 
-const liStyle = 'py-2 flex w-full flex-row justify-between hover:bg-gray-100 hover:rounded-md';
+const liStyle = 'py-2 flex w-full flex-row justify-between hover:bg-gray-100 hover:rounded-md items-center break-words';
 
 // Add reordering
 
@@ -49,22 +48,21 @@ function App() {
           name: selectedInput.current.value,
           priority: inputPriority as Priority,
         }
-        setTodoList([itemToAdd, ...todoList]);
+        setTodoList([...todoList, itemToAdd]);
         selectedInput.current.value = "";
       }
-
     }
   }
 
   const checkItem = (item: TodoBox): void => {
     item.done = true;
-    setDoneList([item, ...doneList]);
+    setDoneList([...doneList, item]);
     setTodoList(todoList.filter(elem => elem.name !== item.name));
   }
 
   const uncheckItem = (item: TodoBox): void => {
     item.done = false;
-    setTodoList([item, ...todoList]);
+    setTodoList([...todoList, item]);
     setDoneList(doneList.filter(elem => elem.name !== item.name));
   }
 
@@ -82,12 +80,16 @@ function App() {
     }
   }
 
+  const mapName = (item:TodoBox) => {
+    return item.name + ' / ' + item.priority;
+  }
+
   return (
       <div className='w-full flex flex-col items-center justify-center'>
         <div className='w-1/3 mt-8'>
           <div className='flex'>
             <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} onClick={inputClicked}/>
-            <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["default"]} aria-label={'select priority'}>
+            <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["medium"]} aria-label={'select priority'}>
               {selectOptions.map((animal) => (
                   <SelectItem key={animal.key}>{animal.label}</SelectItem>
               ))}
@@ -98,12 +100,15 @@ function App() {
           <div className='mt-8'>
             {todoList && todoList.length > 0 &&
                 <div>
-                  <h1>{'ToDo'}</h1>
+                  <h1>{'Todo'}</h1>
                   <ul className='mt-4'>
                     {todoList.map((item, index) => <li key={index} style={{listStyleType: "none"}} className={liStyle}>
                       <Checkbox isSelected={item.done}
-                                onChange={() => checkItem(item)}>{item.name} / {item.priority} </Checkbox>
-                      <ImCross onClick={() => deleteItem("todo", item)} className='cursor-pointer m-1.5 mx-4'/>
+                                onChange={() => checkItem(item)} className='w-[95%] ml-3'>
+                        {/*<BlurIn>{mapName(item)}</BlurIn>*/}
+                        <LettersPullUp text={mapName(item)} />
+                      </Checkbox>
+                      <ImCross onClick={() => deleteItem("todo", item)} className='cursor-pointer mx-4'/>
                     </li>)}
                   </ul>
                 </div>
@@ -117,8 +122,10 @@ function App() {
                   <ul className='mt-4'>
                     {doneList.map((item, index) => <li key={index} style={{listStyleType: "none"}} className={liStyle}>
                       <Checkbox isSelected={item.done}
-                                onChange={() => uncheckItem(item)}>{item.name} / {item.priority} </Checkbox>
-                      <ImCross onClick={() => deleteItem("done", item)} className='cursor-pointer m-1.5'/>
+                                onChange={() => uncheckItem(item)} className='w-[95%] ml-3'>
+                        <LettersPullUp text={mapName(item)} />
+                      </Checkbox>
+                      <ImCross onClick={() => deleteItem("done", item)} className='cursor-pointer mx-4'/>
                     </li>)}
                   </ul>
                 </div>
