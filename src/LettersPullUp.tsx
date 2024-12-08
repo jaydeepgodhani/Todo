@@ -2,14 +2,12 @@
 import { motion, useInView } from 'framer-motion';
 import * as React from 'react';
 
-export function LettersPullUp({
-                                text,
-                              }: {
+export function LettersPullUp({text}: {
   text: string;
   className?: string;
 }) {
-  const splittedText = text.split('');
 
+  const splittedText = text.split('');
   const pullupVariant = {
     initial: { y: 7, opacity: 0 },
     animate: (i: number) => ({
@@ -20,12 +18,14 @@ export function LettersPullUp({
       },
     }),
   };
+
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true });
+
   return (
-      <div className="flex justify-center">
+      <span className="flex justify-center overflow-hidden">
         {splittedText.map((current, i) => (
-            <motion.div
+            <motion.span
                 key={i}
                 ref={ref}
                 variants={pullupVariant}
@@ -34,8 +34,8 @@ export function LettersPullUp({
                 custom={i}
             >
               {current == ' ' ? <span>&nbsp;</span> : current}
-            </motion.div>
+            </motion.span>
         ))}
-      </div>
+      </span>
   );
 }
