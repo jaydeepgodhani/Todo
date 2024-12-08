@@ -13,6 +13,7 @@ const selectOptions = [
 ];
 
 // Add reordering
+// drag and drop to and from
 
 function App() {
 
@@ -62,18 +63,22 @@ function App() {
     }
   }
 
-  const inputClicked = () => {
-    if (selectedInput.current != null) {
-      selectedInput.current.value = "";
-    }
-  }
-
   const onDragEnd = (e: DragEndEvent) => {
     if (!e.over) return;
+    let activeIndex = -1;
+    let overIndex = -1;
     if (e.active.id !== e.over.id) {
-      const activeIndex = todoList.findIndex(todo => todo.id === e.active.id);
-      const overIndex = todoList.findIndex(todo => e.over && todo.id === e.over.id);
-      setTodoList(arrayMove(todoList, activeIndex, overIndex));
+      activeIndex = todoList.findIndex(todo => todo.id === e.active.id);
+      if (activeIndex == -1) {
+        activeIndex = doneList.findIndex(todo => todo.id === e.active.id);
+        overIndex = doneList.findIndex(todo => e.over && todo.id === e.over.id);
+        setDoneList(arrayMove(doneList, activeIndex, overIndex));
+      } else {
+        activeIndex = todoList.findIndex(todo => todo.id === e.active.id);
+        overIndex = todoList.findIndex(todo => e.over && todo.id === e.over.id);
+        setTodoList(arrayMove(todoList, activeIndex, overIndex));
+      }
+
     }
   }
 
@@ -82,7 +87,7 @@ function App() {
         <DndContext onDragEnd={onDragEnd}>
           <div className='w-1/3 mt-8'>
             <div className='flex'>
-              <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} onClick={inputClicked}/>
+              <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} isClearable/>
               <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["medium"]}
                       aria-label={'select priority'}>
                 {selectOptions.map((animal) => (

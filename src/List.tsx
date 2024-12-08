@@ -14,7 +14,7 @@ const List = (
       list && list.length > 0 &&
       <div className='w-full'>
         <ul className='mt-4'>
-          <SortableContext items={list}>
+          <SortableContext items={list} id={type}>
             {list.map(item =>
                 <ListItem item={item} type={type} checkUncheckItem={checkUncheckItem} deleteItem={deleteItem} key={item.id} />)}
           </SortableContext>
