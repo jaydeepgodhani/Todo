@@ -1,8 +1,10 @@
 import {useRef, useState} from 'react'
 import './App.css'
 import {Button, Input, Select, SelectItem} from "@nextui-org/react";
-import {Priority, TodoBox} from "./interfaces.ts";
+import {Box, Priority, TodoBox} from "./commons.ts";
 import List from "./List.tsx";
+import {DndContext, DragEndEvent} from "@dnd-kit/core";
+import {arrayMove} from "@dnd-kit/sortable";
 
 const selectOptions = [
   {key: "high", label: "High"},
@@ -31,6 +33,7 @@ function App() {
           done: false,
           name: selectedInput.current.value,
           priority: inputPriority as Priority,
+          id: selectedInput.current.value,
         }
         setTodoList([...todoList, itemToAdd]);
         selectedInput.current.value = "";
@@ -38,7 +41,8 @@ function App() {
     }
   }
 
-  const checkOrUncheckItem = (item: TodoBox, type: string): void => {
+  const checkUncheckItem: Box = (item, type) => {
+    console.log("not here ?")
     if (type === 'todo') {
       item.done = false;
       setTodoList([...todoList, item]);
@@ -50,7 +54,7 @@ function App() {
     }
   }
 
-  const deleteItem = (item: TodoBox, type: string): void => {
+  const deleteItem: Box = (item, type) => {
     if (type === 'done') {
       setTodoList(todoList.filter(elem => elem.name !== item.name));
     } else {
@@ -64,30 +68,41 @@ function App() {
     }
   }
 
+  const onDragEnd = (e: DragEndEvent) => {
+    if (!e.over) return;
+    if (e.active.id !== e.over.id) {
+      const activeIndex = todoList.findIndex(todo => todo.id === e.active.id);
+      const overIndex = todoList.findIndex(todo => e.over && todo.id === e.over.id);
+      setTodoList(arrayMove(todoList, activeIndex, overIndex));
+    }
+  }
+
   return (
       <div className='w-full flex flex-col items-center justify-center'>
-        <div className='w-1/3 mt-8'>
-          <div className='flex'>
-            <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} onClick={inputClicked}/>
-            <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["medium"]}
-                    aria-label={'select priority'}>
-              {selectOptions.map((animal) => (
-                  <SelectItem key={animal.key}>{animal.label}</SelectItem>
-              ))}
-            </Select>
-            <Button color="primary" onClick={addItem} className='px-4'>ADD</Button>
-          </div>
+        <DndContext onDragEnd={onDragEnd}>
+          <div className='w-1/3 mt-8'>
+            <div className='flex'>
+              <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} onClick={inputClicked}/>
+              <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["medium"]}
+                      aria-label={'select priority'}>
+                {selectOptions.map((animal) => (
+                    <SelectItem key={animal.key}>{animal.label}</SelectItem>
+                ))}
+              </Select>
+              <Button color="primary" onClick={addItem} className='px-4'>ADD</Button>
+            </div>
 
-          <div className='mt-8'>
-            <h1>{'Todo'}</h1>
-            <List list={todoList} type={'done'} onTickUntick={checkOrUncheckItem} deleteItem={deleteItem}/>
-          </div>
+            <div className='mt-8'>
+              <h1>{'Todo'}</h1>
+              <List list={todoList} type={'done'} checkUncheckItem={checkUncheckItem} deleteItem={deleteItem}/>
+            </div>
 
-          <div className='mt-8'>
-            <h1>{'Done'}</h1>
-            <List list={doneList} type={'todo'} onTickUntick={checkOrUncheckItem} deleteItem={deleteItem}/>
+            <div className='mt-8'>
+              <h1>{'Done'}</h1>
+              <List list={doneList} type={'todo'} checkUncheckItem={checkUncheckItem} deleteItem={deleteItem}/>
+            </div>
           </div>
-        </div>
+        </DndContext>
       </div>
   )
 }
