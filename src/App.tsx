@@ -12,8 +12,10 @@ const selectOptions = [
   {key: "low", label: "Low"},
 ];
 
-// Add reordering
 // drag and drop to and from
+// dragging from bottom to top behind the scene
+// why heavy application ?
+// mobile first css
 
 function App() {
 
@@ -84,8 +86,9 @@ function App() {
 
   return (
       <div className='w-full flex flex-col items-center justify-center'>
+        <h1 className='my-12 text-4xl font-bold'>{'Todo - Drag & Drop'}</h1>
         <DndContext onDragEnd={onDragEnd}>
-          <div className='w-1/3 mt-8'>
+          <div className='w-1/3 mt-2'>
             <div className='flex'>
               <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} isClearable/>
               <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["medium"]}
