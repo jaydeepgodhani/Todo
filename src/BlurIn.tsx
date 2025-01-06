@@ -9,7 +9,7 @@ export const BlurIn = ({ children }: { children: React.ReactNode }) => {
           ref={ref}
           initial={{ filter: 'blur(20px)', opacity: 0 }}
           animate={isInView ? { filter: 'blur(0px)', opacity: 1 } : {}}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
       >
         {children}
       </motion.span>

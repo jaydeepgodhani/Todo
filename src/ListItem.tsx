@@ -5,6 +5,7 @@ import {RxCross2} from "react-icons/rx";
 import {Box, TodoBox} from "./commons.ts";
 import { CSS } from "@dnd-kit/utilities";
 import { MdOutlineDragIndicator } from "react-icons/md";
+import {BlurIn} from "./BlurIn.tsx";
 
 const mapName = (item: TodoBox) => {
   return item.name + ' - ' + item.priority;
@@ -28,13 +29,14 @@ const ListItem = ({item, type, checkUncheckItem, deleteItem}: {
           ref={setNodeRef}
           {...attributes}
       >
-        <div className='ml-3 max-w-[90%] flex items-center cursor-pointer w-full' onClick={() => checkUncheckItem(item, type)}>
-          <MdOutlineDragIndicator className={'mr-2 cursor-grab'} {...listeners}/>
+        <MdOutlineDragIndicator className={'cursor-grab w-[10%]'} {...listeners}/>
+        <div className='max-w-[90%] flex items-center cursor-pointer w-full' onClick={() => checkUncheckItem(item, type)}>
           <Checkbox isSelected={item.done}
                     onChange={() => checkUncheckItem(item, type)}
           >
-            {/*<BlurIn>{mapName(item)}</BlurIn>*/}
-            <LettersPullUp text={mapName(item)}/>
+            <BlurIn>{mapName(item)}</BlurIn>
+            {/*<LettersPullUp text={mapName(item)}/>*/}
+            {/*{mapName(item)}*/}
           </Checkbox>
         </div>
         <div className='max-w-[10%] px-2'>
