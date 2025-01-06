@@ -1,6 +1,5 @@
 import {useSortable} from "@dnd-kit/sortable";
 import {Checkbox} from "@nextui-org/checkbox";
-import {LettersPullUp} from "./LettersPullUp.tsx";
 import {RxCross2} from "react-icons/rx";
 import {Box, TodoBox} from "./commons.ts";
 import { CSS } from "@dnd-kit/utilities";
@@ -24,7 +23,7 @@ const ListItem = ({item, type, checkUncheckItem, deleteItem}: {
 
   return (
       <li key={item.id}
-          style={{transform: CSS.Transform.toString(transform), transition: transition, zIndex: 2}}
+          style={{transform: CSS.Translate.toString(transform), transition: transition, zIndex: 2}}
           className={liStyle}
           ref={setNodeRef}
           {...attributes}

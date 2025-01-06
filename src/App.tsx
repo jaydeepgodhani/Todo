@@ -13,9 +13,7 @@ const selectOptions = [
 ];
 
 // drag and drop to and from
-// dragging from bottom to top behind the scene
 // why heavy application ?
-// mobile first css
 
 function App() {
 
@@ -45,7 +43,6 @@ function App() {
   }
 
   const checkUncheckItem: Box = (item, type) => {
-    console.log("not here ?")
     if (type === 'todo') {
       item.done = false;
       setTodoList([...todoList, item]);
@@ -88,7 +85,7 @@ function App() {
       <div className='w-full flex flex-col items-center justify-center'>
         <h1 className='my-12 text-4xl font-bold'>{'Todo - Drag & Drop'}</h1>
         <DndContext onDragEnd={onDragEnd}>
-          <div className='w-1/3 mt-2'>
+          <div className='w-2/3 xl:w-1/2 2xl:w-2/5 mt-2'>
             <div className='flex'>
               <Input ref={selectedInput} aria-label={'add todo item'} variant={'bordered'} isClearable/>
               <Select className="max-w-xs px-4" ref={selectedPriority} defaultSelectedKeys={["medium"]}

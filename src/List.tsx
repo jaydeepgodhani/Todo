@@ -1,7 +1,7 @@
 import {Box, TodoBox} from "./commons.ts";
 import {SortableContext} from "@dnd-kit/sortable";
 import ListItem from "./ListItem.tsx";
-import {RiListIndefinite, RiListCheck3} from "react-icons/ri";
+import {RiListCheck3, RiListIndefinite} from "react-icons/ri";
 
 const List = (
     {list, type, checkUncheckItem, deleteItem}: {
@@ -20,15 +20,15 @@ const List = (
 
   return (
       list && list.length > 0 &&
-      <div className='w-full'>
-        <ul className='mt-4'>
-          <SortableContext items={list} id={type}>
-            {list.map(item =>
-                <ListItem item={item} type={type} checkUncheckItem={checkUncheckItem} deleteItem={deleteItem}
-                          key={item.id}/>)}
-          </SortableContext>
-        </ul>
-      </div>)
+    <div className='w-full'>
+      <ul className='mt-4'>
+        <SortableContext items={list} id={type}>
+          {list.map(item =>
+              <ListItem item={item} type={type} checkUncheckItem={checkUncheckItem} deleteItem={deleteItem}
+                        key={item.id}/>)}
+        </SortableContext>
+      </ul>
+    </div>)
 }
 
 export default List;
