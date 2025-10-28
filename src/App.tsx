@@ -108,7 +108,7 @@ function App() {
                 <SelectItem key={animal.key}>{animal.label}</SelectItem>
               ))}
             </Select>
-            <Button color="primary"  className="px-4" onKeyDown={addItem}>
+            <Button color="primary" onClick={addItem} className="px-4" onKeyDown={addItem}>
               ADD
             </Button>
           </div>
