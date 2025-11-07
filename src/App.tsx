@@ -1,7 +1,7 @@
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Input, Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Box, Priority, TodoBox } from "./commons.ts";
 import List from "./List.tsx";
 import ListItem from "./ListItem.tsx";
@@ -11,11 +11,6 @@ const selectOptions = [
   { key: "medium", label: "Medium" },
   { key: "low", label: "Low" },
 ];
-
-let itemId = 1;
-
-// drag and drop to and from
-// why heavy application ?
 
 const initialTodo = [
   { id: "t1", name: "Task A", done: false, priority: "high" as Priority },
@@ -27,53 +22,6 @@ const initialDone = [
 ];
 
 function App() {
-  // const [inputValue, setInputValue] = useState("");
-  // const [priority, setPriority] = useState("medium");
-
-  // const [todoList, setTodoList] = useState<TodoBox[]>([]);
-  // const [doneList, setDoneList] = useState<TodoBox[]>([]);
-
-  // const addItem = (): void => {
-  //   if (!inputValue) return;
-  //   if (
-  //     todoList.findIndex((elem) => elem.name === inputValue) < 0 &&
-  //     doneList.findIndex((elem) => elem.name === inputValue) < 0
-  //   ) {
-  //     const itemToAdd = {
-  //       done: false,
-  //       name: inputValue,
-  //       priority: priority as Priority,
-  //       id: inputValue,
-  //     };
-  //     setTodoList([...todoList, itemToAdd]);
-  //   }
-  //   setInputValue("");
-  //   setPriority("medium");
-  // };
-
-
-
-  // const onDragEnd = (e: DragEndEvent) => {
-  //   if (!e.over) return;
-  //   let activeIndex = -1;
-  //   let overIndex = -1;
-  //   if (e.active.id !== e.over.id) {
-  //     activeIndex = todoList.findIndex((todo) => todo.id === e.active.id);
-  //     if (activeIndex == -1) {
-  //       activeIndex = doneList.findIndex((todo) => todo.id === e.active.id);
-  //       overIndex = doneList.findIndex(
-  //         (todo) => e.over && todo.id === e.over.id
-  //       );
-  //       setDoneList(arrayMove(doneList, activeIndex, overIndex));
-  //     } else {
-  //       activeIndex = todoList.findIndex((todo) => todo.id === e.active.id);
-  //       overIndex = todoList.findIndex(
-  //         (todo) => e.over && todo.id === e.over.id
-  //       );
-  //       setTodoList(arrayMove(todoList, activeIndex, overIndex));
-  //     }
-  //   }
-  // };
 
   const [lists, setLists] = useState<{todo: TodoBox[]; done: TodoBox[]}>({ todo: initialTodo, done: initialDone });
   const [activeId, setActiveId] = useState(null);
@@ -81,9 +29,7 @@ function App() {
   const [inputValue, setInputValue] = useState("");
   const [priority, setPriority] = useState("medium");
 
-  let draggedItem = null;
-
-  const sensors = useSensors(useSensor(PointerSensor));
+  const draggedItem = useRef<TodoBox | undefined>(null);
 
   function findListContaining(id: string) {
     if (!id) return null;
@@ -95,7 +41,12 @@ function App() {
   function handleDragStart(event:any) {
     setActiveId(event.active.id);
   }
-  draggedItem = lists.todo.find((i: any) => i.id === activeId);
+  draggedItem.current = lists.todo.find((i: any) => i.id === activeId);
+  if(!draggedItem.current) {
+    draggedItem.current = lists.done.find((i: any) => i.id === activeId);
+  }
+
+  console.log('draggedItem...', draggedItem, activeId);
 
   const checkUncheckItem: Box = (item, type) => {
     // if (type === "todo") {
@@ -129,6 +80,8 @@ function App() {
     const overListId =
       findListContaining(over.id) ??
       (over.id === "todo" || over.id === "done" ? over.id : null);
+
+    console.log('overlist id... ', overListId);
 
     if (!fromListId || !overListId) return; // safety
 
@@ -239,7 +192,7 @@ function App() {
             // simple overlay representation
             <div>
               <ListItem
-                item={draggedItem}
+                item={draggedItem.current}
                 type={"done"}
                 checkUncheckItem={checkUncheckItem}
                 deleteItem={deleteItem}
