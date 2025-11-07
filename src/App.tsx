@@ -1,9 +1,10 @@
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { Input, Select, SelectItem } from "@heroui/react";
 import { useState } from "react";
 import { Box, Priority, TodoBox } from "./commons.ts";
 import List from "./List.tsx";
+import ListItem from "./ListItem.tsx";
 
 const selectOptions = [
   { key: "high", label: "High" },
@@ -11,80 +12,174 @@ const selectOptions = [
   { key: "low", label: "Low" },
 ];
 
+let itemId = 1;
+
 // drag and drop to and from
 // why heavy application ?
 
+const initialTodo = [
+  { id: "t1", name: "Task A", done: false, priority: "high" as Priority },
+  { id: "t2", name: "Task B", done: false, priority: "high" as Priority },
+  { id: "t3", name: "Task C", done: false, priority: "high" as Priority },
+];
+const initialDone = [
+  { id: "d1", name: "Task Z", done: true, priority: "high" as Priority },
+];
+
 function App() {
+  // const [inputValue, setInputValue] = useState("");
+  // const [priority, setPriority] = useState("medium");
+
+  // const [todoList, setTodoList] = useState<TodoBox[]>([]);
+  // const [doneList, setDoneList] = useState<TodoBox[]>([]);
+
+  // const addItem = (): void => {
+  //   if (!inputValue) return;
+  //   if (
+  //     todoList.findIndex((elem) => elem.name === inputValue) < 0 &&
+  //     doneList.findIndex((elem) => elem.name === inputValue) < 0
+  //   ) {
+  //     const itemToAdd = {
+  //       done: false,
+  //       name: inputValue,
+  //       priority: priority as Priority,
+  //       id: inputValue,
+  //     };
+  //     setTodoList([...todoList, itemToAdd]);
+  //   }
+  //   setInputValue("");
+  //   setPriority("medium");
+  // };
+
+
+
+  // const onDragEnd = (e: DragEndEvent) => {
+  //   if (!e.over) return;
+  //   let activeIndex = -1;
+  //   let overIndex = -1;
+  //   if (e.active.id !== e.over.id) {
+  //     activeIndex = todoList.findIndex((todo) => todo.id === e.active.id);
+  //     if (activeIndex == -1) {
+  //       activeIndex = doneList.findIndex((todo) => todo.id === e.active.id);
+  //       overIndex = doneList.findIndex(
+  //         (todo) => e.over && todo.id === e.over.id
+  //       );
+  //       setDoneList(arrayMove(doneList, activeIndex, overIndex));
+  //     } else {
+  //       activeIndex = todoList.findIndex((todo) => todo.id === e.active.id);
+  //       overIndex = todoList.findIndex(
+  //         (todo) => e.over && todo.id === e.over.id
+  //       );
+  //       setTodoList(arrayMove(todoList, activeIndex, overIndex));
+  //     }
+  //   }
+  // };
+
+  const [lists, setLists] = useState<{todo: TodoBox[]; done: TodoBox[]}>({ todo: initialTodo, done: initialDone });
+  const [activeId, setActiveId] = useState(null);
+
   const [inputValue, setInputValue] = useState("");
   const [priority, setPriority] = useState("medium");
 
-  const [todoList, setTodoList] = useState<TodoBox[]>([]);
-  const [doneList, setDoneList] = useState<TodoBox[]>([]);
+  let draggedItem = null;
 
-  const addItem = (): void => {
-    if (!inputValue) return;
-    if (
-      todoList.findIndex((elem) => elem.name === inputValue) < 0 &&
-      doneList.findIndex((elem) => elem.name === inputValue) < 0
-    ) {
-      const itemToAdd = {
-        done: false,
-        name: inputValue,
-        priority: priority as Priority,
-        id: inputValue,
-      };
-      setTodoList([...todoList, itemToAdd]);
-    }
-    setInputValue("");
-    setPriority("medium");
-  };
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  function findListContaining(id: string) {
+    if (!id) return null;
+    if (lists.todo.find((i:any) => i.id === id)) return "todo";
+    if (lists.done.find((i:any) => i.id === id)) return "done";
+    return null;
+  }
+
+  function handleDragStart(event:any) {
+    setActiveId(event.active.id);
+  }
+  draggedItem = lists.todo.find((i: any) => i.id === activeId);
 
   const checkUncheckItem: Box = (item, type) => {
-    if (type === "todo") {
-      item.done = false;
-      setTodoList([...todoList, item]);
-      setDoneList(doneList.filter((elem) => elem.name !== item.name));
-    } else {
-      item.done = true;
-      setDoneList([...doneList, item]);
-      setTodoList(todoList.filter((elem) => elem.name !== item.name));
-    }
+    // if (type === "todo") {
+    //   item.done = false;
+    //   setTodoList([...todoList, item]);
+    //   setDoneList(doneList.filter((elem) => elem.name !== item.name));
+    // } else {
+    //   item.done = true;
+    //   setDoneList([...doneList, item]);
+    //   setTodoList(todoList.filter((elem) => elem.name !== item.name));
+    // }
   };
 
   const deleteItem: Box = (item, type) => {
-    if (type === "done") {
-      setTodoList(todoList.filter((elem) => elem.name !== item.name));
-    } else {
-      setDoneList(doneList.filter((elem) => elem.name !== item.name));
-    }
+    // if (type === "done") {
+    //   setTodoList(todoList.filter((elem) => elem.name !== item.name));
+    // } else {
+    //   setDoneList(doneList.filter((elem) => elem.name !== item.name));
+    // }
   };
 
-  const onDragEnd = (e: DragEndEvent) => {
-    if (!e.over) return;
-    let activeIndex = -1;
-    let overIndex = -1;
-    if (e.active.id !== e.over.id) {
-      activeIndex = todoList.findIndex((todo) => todo.id === e.active.id);
-      if (activeIndex == -1) {
-        activeIndex = doneList.findIndex((todo) => todo.id === e.active.id);
-        overIndex = doneList.findIndex(
-          (todo) => e.over && todo.id === e.over.id
-        );
-        setDoneList(arrayMove(doneList, activeIndex, overIndex));
-      } else {
-        activeIndex = todoList.findIndex((todo) => todo.id === e.active.id);
-        overIndex = todoList.findIndex(
-          (todo) => e.over && todo.id === e.over.id
-        );
-        setTodoList(arrayMove(todoList, activeIndex, overIndex));
-      }
+  function handleDragEnd(event:any) {
+    const { active, over } = event;
+    setActiveId(null);
+
+    // if nothing under pointer, ignore
+    if (!over) return;
+
+    const fromListId = findListContaining(active.id);
+    // over.id could be either an item id OR a container id (if we dropped on empty area)
+    const overListId =
+      findListContaining(over.id) ??
+      (over.id === "todo" || over.id === "done" ? over.id : null);
+
+    if (!fromListId || !overListId) return; // safety
+
+    // same list -> reorder
+    if (fromListId === overListId) {
+      const list = lists[fromListId];
+      const oldIndex = list.findIndex((i:any) => i.id === active.id);
+      const newIndex = list.findIndex((i: any) => i.id === over.id);
+      // if over.id was containerId (dropped in empty area), newIndex will be -1; just push to end
+      const targetIndex = newIndex === -1 ? list.length - 1 : newIndex;
+      const newList = arrayMove(list, oldIndex, targetIndex);
+      setLists((prev) => ({ ...prev, [fromListId]: newList }));
+      return;
     }
-  };
+
+    // moving between lists
+    const fromList = lists[fromListId];
+    const toList = lists[overListId];
+
+    // remove from source
+    const item = fromList.find((i:any) => i.id === active.id);
+    const newFrom = fromList.filter((i:any) => i.id !== active.id);
+
+    // determine insert index in target:
+    // if over.id is a containerId (dropped into empty area), put at end
+    let insertIndex = 0;
+    const overIndex = toList.findIndex((i:any) => i.id === over.id);
+    if (overIndex === -1) {
+      insertIndex = toList.length; // drop at end
+    } else {
+      // decide whether to insert before or after the hovered item. Here we insert at hovered index.
+      insertIndex = overIndex;
+    }
+
+    const newTo = [
+      ...toList.slice(0, insertIndex),
+      item,
+      ...toList.slice(insertIndex),
+    ];
+
+    setLists((prev) => ({
+      ...prev,
+      [fromListId]: newFrom,
+      [overListId]: newTo,
+    }));
+  }
 
   return (
     <div className="w-full flex flex-col items-center justify-center">
       <h1 className="my-12 text-4xl font-bold">{"Todo - Drag & Drop"}</h1>
-      <DndContext onDragEnd={onDragEnd}>
+      <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
         <div className="w-2/3 xl:w-1/2 2xl:w-2/5 mt-2">
           <div className="flex">
             <Input
@@ -107,20 +202,21 @@ function App() {
                 <SelectItem key={animal.key}>{animal.label}</SelectItem>
               ))}
             </Select>
-            <Button
+            {/* <Button
               color="primary"
               onClick={addItem}
               className="px-4"
               onKeyDown={addItem}
             >
               ADD
-            </Button>
+            </Button> */}
           </div>
 
           <div className="mt-8">
             <h1>{"Todo"}</h1>
             <List
-              list={todoList}
+              id={"todo"}
+              list={lists.todo}
               type={"done"}
               checkUncheckItem={checkUncheckItem}
               deleteItem={deleteItem}
@@ -130,13 +226,27 @@ function App() {
           <div className="mt-8">
             <h1>{"Done"}</h1>
             <List
-              list={doneList}
+              id={"done"}
+              list={lists.done}
               type={"todo"}
               checkUncheckItem={checkUncheckItem}
               deleteItem={deleteItem}
             />
           </div>
         </div>
+        <DragOverlay>
+          {activeId ? (
+            // simple overlay representation
+            <div>
+              <ListItem
+                item={draggedItem}
+                type={"done"}
+                checkUncheckItem={checkUncheckItem}
+                deleteItem={deleteItem}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
