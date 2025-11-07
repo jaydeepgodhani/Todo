@@ -1,6 +1,6 @@
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Input, Select, SelectItem } from "@heroui/react";
+import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useRef, useState } from "react";
 import { Box, Priority, TodoBox } from "./commons.ts";
 import List from "./List.tsx";
@@ -22,8 +22,10 @@ const initialDone = [
 ];
 
 function App() {
-
-  const [lists, setLists] = useState<{todo: TodoBox[]; done: TodoBox[]}>({ todo: initialTodo, done: initialDone });
+  const [lists, setLists] = useState<{ todo: TodoBox[]; done: TodoBox[] }>({
+    todo: initialTodo,
+    done: initialDone,
+  });
   const [activeId, setActiveId] = useState(null);
 
   const [inputValue, setInputValue] = useState("");
@@ -33,20 +35,20 @@ function App() {
 
   function findListContaining(id: string) {
     if (!id) return null;
-    if (lists.todo.find((i:any) => i.id === id)) return "todo";
-    if (lists.done.find((i:any) => i.id === id)) return "done";
+    if (lists.todo.find((i: any) => i.id === id)) return "todo";
+    if (lists.done.find((i: any) => i.id === id)) return "done";
     return null;
   }
 
-  function handleDragStart(event:any) {
+  function handleDragStart(event: any) {
     setActiveId(event.active.id);
   }
   draggedItem.current = lists.todo.find((i: any) => i.id === activeId);
-  if(!draggedItem.current) {
+  if (!draggedItem.current) {
     draggedItem.current = lists.done.find((i: any) => i.id === activeId);
   }
 
-  console.log('draggedItem...', draggedItem, activeId);
+  console.log("draggedItem...", draggedItem, activeId);
 
   const checkUncheckItem: Box = (item, type) => {
     // if (type === "todo") {
@@ -68,7 +70,26 @@ function App() {
     // }
   };
 
-  function handleDragEnd(event:any) {
+  const addItem = (): void => {
+    if (!inputValue) return;
+    if (
+      lists.todo.findIndex((elem) => elem.name === inputValue) < 0 &&
+      lists.done.findIndex((elem) => elem.name === inputValue) < 0
+    ) {
+      const itemToAdd = {
+        done: false,
+        name: inputValue,
+        priority: priority as Priority,
+        id: inputValue,
+      };
+      lists.todo.push(itemToAdd);
+      setLists((prev) => ({ ...prev, todo: lists.todo }));
+    }
+    setInputValue("");
+    setPriority("medium");
+  };
+
+  function handleDragEnd(event: any) {
     const { active, over } = event;
     setActiveId(null);
 
@@ -81,14 +102,14 @@ function App() {
       findListContaining(over.id) ??
       (over.id === "todo" || over.id === "done" ? over.id : null);
 
-    console.log('overlist id... ', overListId);
+    console.log("overlist id... ", overListId);
 
     if (!fromListId || !overListId) return; // safety
 
     // same list -> reorder
     if (fromListId === overListId) {
       const list = lists[fromListId];
-      const oldIndex = list.findIndex((i:any) => i.id === active.id);
+      const oldIndex = list.findIndex((i: any) => i.id === active.id);
       const newIndex = list.findIndex((i: any) => i.id === over.id);
       // if over.id was containerId (dropped in empty area), newIndex will be -1; just push to end
       const targetIndex = newIndex === -1 ? list.length - 1 : newIndex;
@@ -102,13 +123,13 @@ function App() {
     const toList = lists[overListId];
 
     // remove from source
-    const item = fromList.find((i:any) => i.id === active.id);
-    const newFrom = fromList.filter((i:any) => i.id !== active.id);
+    const item = fromList.find((i: any) => i.id === active.id);
+    const newFrom = fromList.filter((i: any) => i.id !== active.id);
 
     // determine insert index in target:
     // if over.id is a containerId (dropped into empty area), put at end
     let insertIndex = 0;
-    const overIndex = toList.findIndex((i:any) => i.id === over.id);
+    const overIndex = toList.findIndex((i: any) => i.id === over.id);
     if (overIndex === -1) {
       insertIndex = toList.length; // drop at end
     } else {
@@ -155,14 +176,14 @@ function App() {
                 <SelectItem key={animal.key}>{animal.label}</SelectItem>
               ))}
             </Select>
-            {/* <Button
+            <Button
               color="primary"
               onClick={addItem}
               className="px-4"
               onKeyDown={addItem}
             >
               ADD
-            </Button> */}
+            </Button>
           </div>
 
           <div className="mt-8">
