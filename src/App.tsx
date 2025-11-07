@@ -55,6 +55,8 @@ function App() {
     //   item.done = false;
     //   setTodoList([...todoList, item]);
     //   setDoneList(doneList.filter((elem) => elem.name !== item.name));
+    //   const newList = lists.done.filter((elem) => elem.name !== item.name);
+    //   setLists((prev) => ({ ...prev, done: newList }));
     // } else {
     //   item.done = true;
     //   setDoneList([...doneList, item]);
@@ -63,11 +65,13 @@ function App() {
   };
 
   const deleteItem: Box = (item, type) => {
-    // if (type === "done") {
-    //   setTodoList(todoList.filter((elem) => elem.name !== item.name));
-    // } else {
-    //   setDoneList(doneList.filter((elem) => elem.name !== item.name));
-    // }
+    if (type === "done") {
+      const newList = lists.todo.filter((elem) => elem.name !== item.name)
+      setLists((prev) => ({ ...prev, todo: newList }));
+    } else {
+      const newList = lists.done.filter((elem) => elem.name !== item.name);
+      setLists((prev) => ({ ...prev, done: newList }));
+    }
   };
 
   const addItem = (): void => {
