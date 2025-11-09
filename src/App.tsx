@@ -12,20 +12,10 @@ const selectOptions = [
   { key: "low", label: "Low" },
 ];
 
-// const initialTodo = [
-//   { id: "t1", name: "Task A", done: false, priority: "high" as Priority },
-//   { id: "t2", name: "Task B", done: false, priority: "high" as Priority },
-//   { id: "t3", name: "Task C", done: false, priority: "high" as Priority },
-// ];
-// const initialDone = [
-//   { id: "d1", name: "Task Z", done: true, priority: "high" as Priority },
-// ];
-
-const blankTodoBox = new Object as TodoBox;
 const initialObj = {
-  todo: [blankTodoBox],
-  done: [blankTodoBox],
-}
+  todo: [],
+  done: [],
+};
 
 function App() {
   const [lists, setLists] = useState<Lists>(initialObj);
@@ -67,7 +57,7 @@ function App() {
 
   const deleteItem: Box = (item, type) => {
     if (type === "done") {
-      const newList = lists.todo.filter((elem) => elem.name !== item.name)
+      const newList = lists.todo.filter((elem) => elem.name !== item.name);
       setLists((prev) => ({ ...prev, todo: newList }));
     } else {
       const newList = lists.done.filter((elem) => elem.name !== item.name);
@@ -103,9 +93,9 @@ function App() {
     const fromListId = findListContaining(active.id);
 
     // over.id could be either an item id OR a container id (if we dropped on empty area)
-    const overListId:string =
+    const overListId: string =
       findListContaining(over.id) ??
-      (over.id === "todo" || over.id === "done" ? over.id : 'todo');
+      (over.id === "todo" || over.id === "done" ? over.id : "todo");
 
     if (!fromListId || !overListId) return; // safety
 
@@ -122,15 +112,15 @@ function App() {
     }
 
     // moving between lists
-    const fromList:TodoBox[] = lists[fromListId];
+    const fromList: TodoBox[] = lists[fromListId];
     const toList = lists[overListId];
 
     // remove from source
     const item = fromList.find((i: any) => i.id === active.id);
     const newFrom = fromList.filter((i: any) => i.id !== active.id);
 
-    if(item) {
-      if(overListId === 'todo') item.done = false;
+    if (item) {
+      if (overListId === "todo") item.done = false;
       else item.done = true;
     }
 

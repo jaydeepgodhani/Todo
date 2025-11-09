@@ -18,9 +18,7 @@ const List = ({
   checkUncheckItem: Box;
   deleteItem: Box;
 }) => {
-  const { setNodeRef } = useDroppable({
-    id: id, // container itself is a droppable target — important for dropping into empty lists
-  });
+  const { setNodeRef } = useDroppable({ id: id });
 
   return (
     <div ref={setNodeRef}>

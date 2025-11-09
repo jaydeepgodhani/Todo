@@ -53,11 +53,9 @@ const ListItem = ({
           onChange={() => checkUncheckItem(item, type)}
         >
           <BlurIn>{mapName(item)}</BlurIn>
-          {/*<LettersPullUp text={mapName(item)}/>*/}
-          {/*{mapName(item)}*/}
         </Checkbox>
       </div>
-      <div className="max-w-[10%] px-2">
+      <div className="max-w-[10%] px-2 cursor-pointer">
         <RxCross2 onClick={() => deleteItem(item, type)} />
       </div>
     </div>
