@@ -19,11 +19,12 @@ const ListItem = ({
   checkUncheckItem,
   deleteItem,
 }: {
-  item: TodoBox;
+  item: TodoBox | undefined;
   type: string;
   checkUncheckItem: Box;
   deleteItem: Box;
 }) => {
+  if(!item) return;
   const { attributes, listeners, transition, transform, setNodeRef } =
     useSortable({ id: item.id });
 

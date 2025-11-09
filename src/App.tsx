@@ -2,7 +2,7 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useRef, useState } from "react";
-import { Box, Priority, TodoBox } from "./commons.ts";
+import { Box, Lists, Priority, TodoBox } from "./commons.ts";
 import List from "./List.tsx";
 import ListItem from "./ListItem.tsx";
 
@@ -12,20 +12,23 @@ const selectOptions = [
   { key: "low", label: "Low" },
 ];
 
-const initialTodo = [
-  { id: "t1", name: "Task A", done: false, priority: "high" as Priority },
-  { id: "t2", name: "Task B", done: false, priority: "high" as Priority },
-  { id: "t3", name: "Task C", done: false, priority: "high" as Priority },
-];
-const initialDone = [
-  { id: "d1", name: "Task Z", done: true, priority: "high" as Priority },
-];
+// const initialTodo = [
+//   { id: "t1", name: "Task A", done: false, priority: "high" as Priority },
+//   { id: "t2", name: "Task B", done: false, priority: "high" as Priority },
+//   { id: "t3", name: "Task C", done: false, priority: "high" as Priority },
+// ];
+// const initialDone = [
+//   { id: "d1", name: "Task Z", done: true, priority: "high" as Priority },
+// ];
+
+const blankTodoBox = new Object as TodoBox;
+const initialObj = {
+  todo: [blankTodoBox],
+  done: [blankTodoBox],
+}
 
 function App() {
-  const [lists, setLists] = useState<{ todo: TodoBox[]; done: TodoBox[] }>({
-    todo: initialTodo,
-    done: initialDone,
-  });
+  const [lists, setLists] = useState<Lists>(initialObj);
   const [activeId, setActiveId] = useState(null);
 
   const [inputValue, setInputValue] = useState("");
@@ -48,20 +51,18 @@ function App() {
     draggedItem.current = lists.done.find((i: any) => i.id === activeId);
   }
 
-  console.log("draggedItem...", draggedItem, activeId);
-
   const checkUncheckItem: Box = (item, type) => {
-    // if (type === "todo") {
-    //   item.done = false;
-    //   setTodoList([...todoList, item]);
-    //   setDoneList(doneList.filter((elem) => elem.name !== item.name));
-    //   const newList = lists.done.filter((elem) => elem.name !== item.name);
-    //   setLists((prev) => ({ ...prev, done: newList }));
-    // } else {
-    //   item.done = true;
-    //   setDoneList([...doneList, item]);
-    //   setTodoList(todoList.filter((elem) => elem.name !== item.name));
-    // }
+    if (type === "todo") {
+      item.done = false;
+      lists.todo.push(item);
+      const doneList = lists.done.filter((elem) => elem.name !== item.name);
+      setLists({ todo: lists.todo, done: doneList });
+    } else {
+      item.done = true;
+      lists.done.push(item);
+      const todoList = lists.todo.filter((elem) => elem.name !== item.name);
+      setLists({ todo: todoList, done: lists.done });
+    }
   };
 
   const deleteItem: Box = (item, type) => {
@@ -99,14 +100,12 @@ function App() {
 
     // if nothing under pointer, ignore
     if (!over) return;
-
     const fromListId = findListContaining(active.id);
-    // over.id could be either an item id OR a container id (if we dropped on empty area)
-    const overListId =
-      findListContaining(over.id) ??
-      (over.id === "todo" || over.id === "done" ? over.id : null);
 
-    console.log("overlist id... ", overListId);
+    // over.id could be either an item id OR a container id (if we dropped on empty area)
+    const overListId:string =
+      findListContaining(over.id) ??
+      (over.id === "todo" || over.id === "done" ? over.id : 'todo');
 
     if (!fromListId || !overListId) return; // safety
 
@@ -123,12 +122,17 @@ function App() {
     }
 
     // moving between lists
-    const fromList = lists[fromListId];
+    const fromList:TodoBox[] = lists[fromListId];
     const toList = lists[overListId];
 
     // remove from source
     const item = fromList.find((i: any) => i.id === active.id);
     const newFrom = fromList.filter((i: any) => i.id !== active.id);
+
+    if(item) {
+      if(overListId === 'todo') item.done = false;
+      else item.done = true;
+    }
 
     // determine insert index in target:
     // if over.id is a containerId (dropped into empty area), put at end
